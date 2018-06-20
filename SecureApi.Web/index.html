@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>JS Application</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css" />
+    <style>
+        .main-container {
+            padding-top: 70px;
+        }
+
+        pre:empty {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">JS Application</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-container">
+        <div class="row">
+            <div class="col-xs-12">
+                <ul class="list-inline list-unstyled requests">
+                    <li><a href="index.html" class="btn btn-primary">Home</a></li>
+                    <li><button type="button" class="btn btn-default js-login">Login</button></li>
+                    <li><button type="button" class="btn btn-default js-call-api">Call API</button></li>
+                    <li><button type="button" class="btn btn-danger js-logout">Logout</button></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">User data</div>
+                    <div class="panel-body">
+                        <pre class="js-user"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">API call result</div>
+                    <div class="panel-body">
+                        <pre class="js-api-result"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="node_modules/oidc-client/dist/oidc-client.js"></script>
+
+    <script>
+        // helper function to show data to the user
+        function display(selector, data) {
+            if (data && typeof data === 'string') {
+                data = JSON.parse(data);
+            }
+            if (data) {
+                data = JSON.stringify(data, null, 2);
+            }
+            $(selector).text(data);
+        }
+        var settings = {
+            // The base URL of our IdentityServer instance. This will allow oidc-client to query
+            // the metadata endpoint so it can validate the tokens
+            authority: 'https://localhost:44378',
+            // The id of the client we want to use when hitting the authorization endpoint
+            client_id: 'js',
+            // The redirect URL used when using the signinPopup method.
+            popup_redirect_uri: 'http://localhost:57981/popup.html',
+            // Defines in our case that we only expect an identity token back
+            response_type: 'id_token',
+            // Defines the scopes the application asks for.
+            scope: 'openid profile',
+            // Indicates to oidc-client if it has to filter some OIDC protocol claims from the
+            // response.
+            filterProtocolClaims: true
+        };
+
+        var manager = new Oidc.UserManager(settings);
+        var user;
+
+        manager.events.addUserLoaded(function (loadedUser) {
+            user = loadedUser;
+            display('.js-user', user);
+        });
+
+        $('.js-login').on('click', function () {
+            manager
+                .signinPopup()
+                .catch(function (error) {
+                    console.error('error while logging in through the popup', error);
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <script src="node_modules/oidc-client/dist/oidc-client.js"></script>
+    <script>
+        // Under the hood, the instance of UserManager in the index.html page opens a popup and
+        // redirects it to the login page. When IdentityServer redirects the user to the popup
+        // page, the information is then passed back to the main page and the popup is
+        // automatically closed.
+        new Oidc.UserManager().signinPopupCallback();
+    </script>
+</body>
+</html>
